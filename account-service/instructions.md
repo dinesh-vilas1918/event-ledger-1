@@ -99,3 +99,50 @@ getBalance — returns BalanceResponse using computeBalance
 getAccountDetails — returns AccountDetailsResponse with all transactions and computed balance
 •
 Inner TransactionResult class (transaction, duplicate boolean) for controller to pick HTTP status
+Claude Sonnet 4.5 • 12.3 Credits
+In com.example.account.exception, create GlobalExceptionHandler with @RestControllerAdvice handling exactly two cases: MethodArgumentNotValidException → 400 with field-level error messages joined into one string, and generic Exception → 500. Use an ErrorResponse DTO (error, message, status, timestamp) in com.example.account.dto.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\dto\ErrorResponse.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\exception\GlobalExceptionHandler.java)
+●
+Done! Created:
+•
+ErrorResponse DTO with error, message, status, timestamp fields
+•
+GlobalExceptionHandler with @RestControllerAdvice handling:
+◦
+MethodArgumentNotValidException → 400 with field errors joined into one string
+◦
+Generic Exception → 500
+Add logstash-logback-encoder dependency and a logback-spring.xml that outputs JSON logs with fields: service="account-service", plus MDC key traceId included via includeMdcKeyName. Also add a servlet Filter TraceIdFilter in com.example.account.config that reads header X-Trace-Id into MDC key traceId (generating a random UUID only if the header is absent), and echoes it back as a response header.
+Thinking
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\pom.xml)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\resources\logback-spring.xml)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\config\TraceIdFilter.java)
+●
+Done! Added:
+•
+logstash-logback-encoder dependency (v7.4) to pom.xml
+•
+logback-spring.xml with JSON logging, service="account-service", and traceId from MDC
+•
+TraceIdFilter that reads X-Trace-Id header into MDC (generates UUID if absent) and echoes it back in response
+Claude Sonnet 4.5 • 4.5 Credits
+Add micrometer-registry-prometheus dependency. In AccountService.applyTransaction, increment a Micrometer Counter named transactions.applied.total tagged status=applied or status=duplicate depending on outcome. No other metrics.
+Thinking
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\pom.xml)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\service\AccountService.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\service\AccountService.java)
+●
+Done! Added:
+•
+micrometer-registry-prometheus dependency to pom.xml
+•
+MeterRegistry injection in AccountService
+•
+transactions.applied.total Counter incremented with status=applied or status=duplicate tags based on outcome in applyTransaction method

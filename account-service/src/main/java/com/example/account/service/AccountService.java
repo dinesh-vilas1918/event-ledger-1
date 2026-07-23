@@ -6,6 +6,8 @@ import com.example.account.dto.TransactionRequest;
 import com.example.account.dto.TransactionResponse;
 import com.example.account.model.Transaction;
 import com.example.account.repository.TransactionRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,10 +21,15 @@ import java.util.stream.Collectors;
 public class AccountService {
 
     private final TransactionRepository transactionRepository;
+    private final MeterRegistry meterRegistry;
 
     public TransactionResult applyTransaction(String accountId, TransactionRequest request) {
         var existing = transactionRepository.findByTransactionId(request.getTransactionId());
         if (existing.isPresent()) {
+            Counter.builder("transactions.applied.total")
+                    .tag("status", "duplicate")
+                    .register(meterRegistry)
+                    .increment();
             return new TransactionResult(existing.get(), true);
         }
 
@@ -36,10 +43,18 @@ public class AccountService {
 
         try {
             Transaction saved = transactionRepository.save(transaction);
+            Counter.builder("transactions.applied.total")
+                    .tag("status", "applied")
+                    .register(meterRegistry)
+                    .increment();
             return new TransactionResult(saved, false);
         } catch (DataIntegrityViolationException e) {
             var duplicate = transactionRepository.findByTransactionId(request.getTransactionId())
                     .orElseThrow(() -> new RuntimeException("Transaction not found after constraint violation"));
+            Counter.builder("transactions.applied.total")
+                    .tag("status", "duplicate")
+                    .register(meterRegistry)
+                    .increment();
             return new TransactionResult(duplicate, true);
         }
     }
