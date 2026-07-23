@@ -166,3 +166,8 @@ testIdempotency_sameTransactionIdTwice_createsOnlyOneRow - Verifies posting the 
 testBalanceComputation_sumOfCreditsMinusDebits - Verifies balance = 200 - 50 + 150 - 100 = 200 (CREDIT - DEBIT computation)
 3.
 testValidation_missingAndInvalidFields_return400 - Verifies blank transactionId, invalid type pattern, and negative amount all return 400
+Fix this java: package org.junit.jupiter.api does not exist
+Thinking
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\pom.xml)
+●
+Done! Added spring-boot-starter-test dependency to pom.xml, which includes JUnit5 (Jupiter API), Mockito, and MockMvc support.
