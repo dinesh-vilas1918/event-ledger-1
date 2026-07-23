@@ -146,3 +146,23 @@ micrometer-registry-prometheus dependency to pom.xml
 MeterRegistry injection in AccountService
 •
 transactions.applied.total Counter incremented with status=applied or status=duplicate tags based on outcome in applyTransaction method
+Claude Sonnet 4.5 • 5.6 Credits
+Write JUnit5 + MockMvc tests in AccountServiceApplicationTests: (1) posting the same transactionId twice creates only one row and second response has the duplicate header, (2) balance is correctly computed as sum(CREDIT) - sum(DEBIT) across multiple transactions regardless of insert order, (3) missing/invalid fields on the transaction request return 400.
+Thinking
+Run Command
+●
+New-Item -ItemType Directory -Path "account-service\src\test\java\com\example\account" -Force
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\test\java\com\example\account\AccountServiceApplicationTests.java)
+●
+Run Command
+●
+New-Item -ItemType Directory -Path "account-service\src\test\java\com\example\account" -Force | Out-Null; $true
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\test\java\com\example\account\AccountServiceApplicationTests.java)
+●
+Done! Created AccountServiceApplicationTests with three test cases:
+1.
+testIdempotency_sameTransactionIdTwice_createsOnlyOneRow - Verifies posting the same transactionId twice creates only one row and second response has X-Idempotent-Replay: true header
+2.
+testBalanceComputation_sumOfCreditsMinusDebits - Verifies balance = 200 - 50 + 150 - 100 = 200 (CREDIT - DEBIT computation)
+3.
+testValidation_missingAndInvalidFields_return400 - Verifies blank transactionId, invalid type pattern, and negative amount all return 400
