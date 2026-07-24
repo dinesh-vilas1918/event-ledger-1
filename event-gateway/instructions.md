@@ -33,3 +33,20 @@ account-service.base-url: configurable via ACCOUNT_SERVICE_URL env var (defaults
 Resilience4j circuitbreaker: accountService instance (sliding window 10, 50% failure threshold, 10s open wait)
 •
 Resilience4j timelimiter: accountService instance (3s timeout)
+In com.example.gateway.model, create JPA entity Event with EXACTLY: Long id, String eventId (unique, not null), String accountId, String type, Double amount, String currency, OffsetDateTime eventTimestamp, String metadataJson (nullable, stores metadata as a JSON string, max 2000 chars), String status (values used elsewhere as plain strings: "PENDING", "APPLIED", "ACCOUNT_SERVICE_UNAVAILABLE" — no enum type needed), Instant createdAt. No other fields.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\model\Event.java)
+●
+Done! Created Event entity with exactly the fields you specified:
+•
+Long id (identity generated)
+•
+String eventId (unique, not null)
+•
+String accountId, type, amount, currency, eventTimestamp, status (all not null)
+•
+String metadataJson (nullable, max 2000 chars)
+•
+Instant createdAt (defaults to Instant.now())
+•
+Status stored as plain String (no enum)
