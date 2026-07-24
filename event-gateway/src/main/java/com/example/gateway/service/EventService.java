@@ -7,6 +7,8 @@ import com.example.gateway.model.Event;
 import com.example.gateway.repository.EventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +24,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final AccountServiceClient accountServiceClient;
     private final ObjectMapper objectMapper;
+    private final MeterRegistry meterRegistry;
 
     public EventResult submitEvent(EventRequest request) {
         Optional<Event> existing = eventRepository.findByEventId(request.getEventId());
@@ -29,6 +32,7 @@ public class EventService {
         if (existing.isPresent()) {
             Event event = existing.get();
             if ("APPLIED".equals(event.getStatus())) {
+                incrementCounter("duplicate");
                 return new EventResult(event, ResultType.DUPLICATE);
             }
             
@@ -53,6 +57,7 @@ public class EventService {
             Event duplicate = eventRepository.findByEventId(request.getEventId())
                     .orElseThrow(() -> new RuntimeException("Event not found after constraint violation"));
             if ("APPLIED".equals(duplicate.getStatus())) {
+                incrementCounter("duplicate");
                 return new EventResult(duplicate, ResultType.DUPLICATE);
             }
             return attemptAccountServiceCall(duplicate);
@@ -74,12 +79,21 @@ public class EventService {
             accountServiceClient.applyTransaction(event.getAccountId(), accountRequest);
             event.setStatus("APPLIED");
             eventRepository.save(event);
+            incrementCounter("success");
             return new EventResult(event, ResultType.SUCCESS);
         } catch (AccountServiceUnavailableException e) {
             event.setStatus("ACCOUNT_SERVICE_UNAVAILABLE");
             eventRepository.save(event);
+            incrementCounter("account_service_unavailable");
             return new EventResult(event, ResultType.ACCOUNT_SERVICE_UNAVAILABLE);
         }
+    }
+
+    private void incrementCounter(String status) {
+        Counter.builder("events.received.total")
+                .tag("status", status)
+                .register(meterRegistry)
+                .increment();
     }
 
     private String convertMetadataToJson(Object metadata) {

@@ -174,3 +174,18 @@ logstash-logback-encoder and micrometer-registry-prometheus dependencies to pom.
 TraceIdFilter in config package - always generates a new UUID if no X-Trace-Id header (Gateway is the origin of trace IDs)
 •
 logback-spring.xml with JSON logging, service="event-gateway", and traceId from MDC
+In EventService.submitEvent, increment Micrometer Counter events.received.total tagged status=success|duplicate|account_service_unavailable.
+Thinking
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\service\EventService.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\service\EventService.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\service\EventService.java)
+●
+Done! Updated EventService to:
+•
+Inject MeterRegistry
+•
+Increment events.received.total Counter with tag status=success, status=duplicate, or status=account_service_unavailable based on the result type
+•
+Added helper method incrementCounter(String status) to centralize counter logic
