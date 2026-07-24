@@ -189,3 +189,55 @@ Inject MeterRegistry
 Increment events.received.total Counter with tag status=success, status=duplicate, or status=account_service_unavailable based on the result type
 •
 Added helper method incrementCounter(String status) to centralize counter logic
+Create Dockerfiles for both services (multi-stage: maven build → eclipse-temurin runtime jar) and a root-level docker-compose.yml starting account-service on 8081 and event-gateway on 8080, with Gateway's ACCOUNT_SERVICE_URL pointing to http://account-service:8081
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\Dockerfile)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\Dockerfile)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\docker-compose.yml)
+●
+Done! Created:
+•
+account-service/Dockerfile - multi-stage build (Maven build → Eclipse Temurin JRE runtime)
+•
+event-gateway/Dockerfile - multi-stage build (Maven build → Eclipse Temurin JRE runtime)
+•
+docker-compose.yml at root level:
+◦
+account-service on port 8081
+◦
+event-gateway on port 8080
+◦
+Gateway's ACCOUNT_SERVICE_URL set to http://account-service:8081
+◦
+Both services on event-ledger-network bridge network
+◦
+event-gateway depends_on account-service
+Claude Sonnet 4.5 • 24.3 Credits
+Write README.md covering architecture, setup, run instructions (Docker Compose + manual), test instructions, and resiliency pattern justification (Circuit Breaker + Timeout, why bulkhead/retry weren't added).
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\README.md)
+●
+Done! Created comprehensive README.md covering:
+1.
+Architecture - Two-service design, responsibilities, key design decisions
+2.
+Resiliency Patterns - Circuit Breaker + Timeout justification, why Bulkhead/Retry weren't added
+3.
+Technology Stack - Complete list of frameworks and libraries
+4.
+Setup - Prerequisites and build instructions
+5.
+Running - Docker Compose and manual setup options
+6.
+API Endpoints - Complete API reference with curl examples for both services
+7.
+Testing - Unit test commands and manual test scenarios (idempotency, balance computation, circuit breaker)
+8.
+Observability - Metrics, JSON logs, distributed tracing
+9.
+Project Structure - Directory layout
+10.
+Validation Rules - Request validation constraints
+The README explains that retry was intentionally omitted because events persist with status tracking, allowing clients to control retry timing via re-submission, which is more appropriate than automatic retries during downstream outages.
