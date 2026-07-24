@@ -241,3 +241,77 @@ Project Structure - Directory layout
 10.
 Validation Rules - Request validation constraints
 The README explains that retry was intentionally omitted because events persist with status tracking, allowing clients to control retry timing via re-submission, which is more appropriate than automatic retries during downstream outages.
+Add swagger openapi dependency for event-gateway and account-service, and add annotations for both modules controller endpoints
+Thinking
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\pom.xml)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\pom.xml)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\controller\AccountController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\controller\AccountController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\controller\AccountController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\controller\AccountController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\account-service\src\main\java\com\example\account\controller\AccountController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Done! Added Swagger/OpenAPI documentation to both services:
+Dependencies:
+•
+Added springdoc-openapi-starter-webmvc-ui (v2.2.0) to both pom.xml files
+Account Service Controller:
+•
+Added @Tag annotation describing the service
+•
+Added @Operation and @ApiResponses annotations to all endpoints:
+◦
+POST /accounts/{accountId}/transactions
+◦
+GET /accounts/{accountId}/balance
+◦
+GET /accounts/{accountId}
+◦
+GET /health
+•
+Added @Parameter descriptions for path variables
+Event Gateway Controller:
+•
+Added @Tag annotation describing the service
+•
+Added @Operation and @ApiResponses annotations to all endpoints:
+◦
+POST /events
+◦
+GET /events/{id}
+◦
+GET /events?account={accountId}
+◦
+GET /accounts/{accountId}/balance
+◦
+GET /health
+•
+Added @Parameter descriptions for path/query variables
+Access Swagger UI:
+•
+account-service: http://localhost:8081/swagger-ui.html
+•
+event-gateway: http://localhost:8080/swagger-ui.html
+OpenAPI JSON:
+•
+account-service: http://localhost:8081/v3/api-docs
+•
+event-gateway: http://localhost:8080/v3/api-docs
