@@ -50,3 +50,12 @@ String metadataJson (nullable, max 2000 chars)
 Instant createdAt (defaults to Instant.now())
 •
 Status stored as plain String (no enum)
+In com.example.gateway.repository, create EventRepository extends JpaRepository<Event, Long> with exactly two methods: findByEventId(String eventId) returning Optional<Event>, findByAccountIdOrderByEventTimestampAsc(String accountId) returning List<Event>.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\repository\EventRepository.java)
+●
+Done! Created EventRepository with exactly two methods:
+•
+findByEventId(String eventId) → Optional<Event>
+•
+findByAccountIdOrderByEventTimestampAsc(String accountId) → List<Event>
