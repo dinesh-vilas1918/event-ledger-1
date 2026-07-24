@@ -105,3 +105,44 @@ getBalance() - GET to /accounts/{accountId}/balance with @CircuitBreaker
 Both methods forward X-Trace-Id header from MDC
 ◦
 Fallback methods throw AccountServiceUnavailableException instead of returning null
+In com.example.gateway.service, create EventService with submitEvent(EventRequest request): check findByEventId first — if the existing record's status is APPLIED, return it as a duplicate. If it exists but status is PENDING or ACCOUNT_SERVICE_UNAVAILABLE, skip re-insert and re-attempt the Account Service call for that same row (don't create a duplicate). If no existing record, save a new Event with status PENDING first (catching DataIntegrityViolationException as a race fallback), THEN call AccountServiceClient.applyTransaction — on success set status APPLIED and save, on AccountServiceUnavailableException set status ACCOUNT_SERVICE_UNAVAILABLE and save (don't throw further, this is not an error state for the event record itself). Also add getEvent(String eventId) and getEventsForAccount(String accountId) — these only ever query the local EventRepository, never call Account Service. Return a result wrapper indicating duplicate/success/accountServiceUnavailable so the controller picks the right status code.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\service\EventService.java)
+●
+Done! Created EventService with:
+•
+submitEvent(EventRequest) - checks for existing events:
+◦
+If status is APPLIED → returns as duplicate
+◦
+If status is PENDING or ACCOUNT_SERVICE_UNAVAILABLE → re-attempts Account Service call
+◦
+If no existing record → saves new Event with status PENDING, then attempts Account Service call
+◦
+Catches DataIntegrityViolationException for race conditions
+◦
+On success → sets status APPLIED
+◦
+On AccountServiceUnavailableException → sets status ACCOUNT_SERVICE_UNAVAILABLE (doesn't throw)
+•
+getEvent(String eventId) - queries local EventRepository only
+•
+getEventsForAccount(String accountId) - queries local EventRepository only
+•
+EventResult wrapper class with ResultType enum (SUCCESS, DUPLICATE, ACCOUNT_SERVICE_UNAVAILABLE) for controller to pick HTTP status
+Claude Sonnet 4.5 • 6.7 Credits
+In com.example.gateway.controller, create EventController with exactly: POST /events (201 new / 200+duplicate-header / 503 if account service unavailable, event still persisted), GET /events/{id} (200 or 404, local data only), GET /events?account={accountId} (200, local data only, ordered by eventTimestamp), GET /accounts/{accountId}/balance (200 passthrough to Account Service, or 503 on failure — this is the ONLY endpoint besides POST /events that calls Account Service), GET /health. Do not add any other endpoints.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\controller\EventController.java)
+●
+Done! Created EventController with exactly five endpoints:
+•
+POST /events - 201 for success, 200 + X-Idempotent-Replay header for duplicates, 503 for account service unavailable (event still persisted)
+•
+GET /events/{id} - 200 with event data or 404, local data only
+•
+GET /events?account={accountId} - 200 with list of events ordered by eventTimestamp, local data only
+•
+GET /accounts/{accountId}/balance - 200 passthrough to Account Service, or 503 on failure (ONLY endpoint besides POST /events that calls Account Service)
+•
+GET /health - simple health check returning status UP
