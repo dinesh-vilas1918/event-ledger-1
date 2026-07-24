@@ -59,3 +59,49 @@ Done! Created EventRepository with exactly two methods:
 findByEventId(String eventId) → Optional<Event>
 •
 findByAccountIdOrderByEventTimestampAsc(String accountId) → List<Event>
+In com.example.gateway.dto, create: EventRequest (eventId, accountId, type, amount, currency, eventTimestamp, Map<String,Object> metadata — with same validation pattern as account-service's TransactionRequest), EventResponse (eventId, accountId, type, amount, currency, eventTimestamp, status — with static from(Event)), AccountTransactionRequest (transactionId, type, amount, currency, eventTimestamp — this is what Gateway sends to Account Service, field-for-field matching account-service's TransactionRequest), BalanceResponse (accountId, balance, currency — matches what Account Service returns), ErrorResponse (error, message, status, timestamp). Do not add anything beyond these five classes.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\dto\EventRequest.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\dto\EventResponse.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\dto\AccountTransactionRequest.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\dto\BalanceResponse.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\dto\ErrorResponse.java)
+●
+Done! Created exactly five DTO classes:
+1.
+EventRequest - with validation (@NotBlank, @NotNull, @Positive, @Pattern for CREDIT|DEBIT) and Map<String,Object> metadata
+2.
+EventResponse - with static from(Event) factory method
+3.
+AccountTransactionRequest - matching account-service's TransactionRequest fields exactly
+4.
+BalanceResponse - matching what Account Service returns
+5.
+ErrorResponse - error, message, status, timestamp
+In com.example.gateway.service, create AccountServiceClient using Spring's RestClient (configured with a 2s connect / 3s read timeout bean in com.example.gateway.config.RestClientConfig). Two methods, each wrapped with @CircuitBreaker(name="accountService", fallbackMethod=...): applyTransaction(String accountId, AccountTransactionRequest request) calling POST {baseUrl}/accounts/{accountId}/transactions, and getBalance(String accountId) calling GET {baseUrl}/accounts/{accountId}/balance. Both forward the current MDC traceId as header X-Trace-Id. On any failure or open circuit, throw a custom unchecked exception AccountServiceUnavailableException (in com.example.gateway.exception) from the fallback method — don't return null or swallow the error.
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\exception\AccountServiceUnavailableException.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\config\RestClientConfig.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\service\AccountServiceClient.java)
+●
+Done! Created:
+1.
+AccountServiceUnavailableException - custom unchecked exception in exception package
+2.
+RestClientConfig - configures RestClient bean with 3s read timeout and account-service base URL
+3.
+AccountServiceClient with:
+◦
+applyTransaction() - POST to /accounts/{accountId}/transactions with @CircuitBreaker
+◦
+getBalance() - GET to /accounts/{accountId}/balance with @CircuitBreaker
+◦
+Both methods forward X-Trace-Id header from MDC
+◦
+Fallback methods throw AccountServiceUnavailableException instead of returning null
