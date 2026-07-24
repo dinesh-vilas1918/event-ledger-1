@@ -146,3 +146,31 @@ GET /events?account={accountId} - 200 with list of events ordered by eventTimest
 GET /accounts/{accountId}/balance - 200 passthrough to Account Service, or 503 on failure (ONLY endpoint besides POST /events that calls Account Service)
 •
 GET /health - simple health check returning status UP
+Claude Sonnet 4.5 • 6.0 Credits
+Same pattern as account-service's GlobalExceptionHandler, plus one more case: catch AccountServiceUnavailableException → 503 with error code ACCOUNT_SERVICE_UNAVAILABLE and a generic client-safe message (don't leak the raw exception message).
+Thinking
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\exception\GlobalExceptionHandler.java)
+●
+Done! Created GlobalExceptionHandler with three exception handlers:
+1.
+MethodArgumentNotValidException → 400 with field-level error messages joined
+2.
+AccountServiceUnavailableException → 503 with error code "ACCOUNT_SERVICE_UNAVAILABLE" and generic client-safe message (doesn't leak raw exception)
+3.
+Generic Exception → 500
+Claude Sonnet 4.5 • 5.3 Credits
+Add TraceIdFilter in com.example.gateway.config, same behavior as account-service's version, EXCEPT this one always generates a new UUID if the incoming request has no X-Trace-Id header (Gateway is the origin of trace IDs, Account Service only ever propagates them). Same logback-spring.xml JSON logging setup as account-service, with service="event-gateway".
+Thinking
+Edit File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\pom.xml)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\java\com\example\gateway\config\TraceIdFilter.java)
+●
+Create File (C:\Users\Public\gitrepos\Java Ai\event-ledger-1\event-gateway\src\main\resources\logback-spring.xml)
+●
+Done! Added:
+•
+logstash-logback-encoder and micrometer-registry-prometheus dependencies to pom.xml
+•
+TraceIdFilter in config package - always generates a new UUID if no X-Trace-Id header (Gateway is the origin of trace IDs)
+•
+logback-spring.xml with JSON logging, service="event-gateway", and traceId from MDC
